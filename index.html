@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Localizador de Celular</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        #map {
+            height: 400px;
+            width: 100%;
+            margin: 20px 0;
+            border: 1px solid #ccc;
+        }
+        
+        .info {
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Localizador de Celular</h1>
+    <button onclick="getLocation()">Obtener Ubicación Actual</button>
+    
+    <div class="info" id="location-info" style="display: none;">
+        <h3>Tus coordenadas:</h3>
+        <p id="coordinates"></p>
+        <p id="accuracy"></p>
+    </div>
+
+    <div id="map"></div>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 5000
+                });
+            } else {
+                alert("La geolocalización no es soportada por este navegador.");
+            }
+        }
+
+        function showPosition(position) {
+            document.getElementById("location-info").style.display = "block";
+            const coordinates = document.getElementById("coordinates");
+            const accuracy = document.getElementById("accuracy");
+            
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            coordinates.textContent = `Latitud: ${lat} | Longitud: ${lon}`;
+            accuracy.textContent = `Precisión: ${position.coords.accuracy} metros`;
+
+            // Mostrar mapa
+            const map = document.getElementById("map");
+            map.innerHTML = `<iframe 
+                width="100%" 
+                height="100%" 
+                frameborder="0" 
+                scrolling="no" 
+                marginheight="0" 
+                marginwidth="0" 
+                src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.005},${lat-0.005},${lon+0.005},${lat+0.005}&layer=mapnik&marker=${lat},${lon}">
+                </iframe>`;
+        }
+
+        function showError(error) {
+            let message = "";
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    message = "Permiso de ubicación denegado. Activa los permisos en tu navegador.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = "Información de ubicación no disponible.";
+                    break;
+                case error.TIMEOUT:
+                    message = "Tiempo de espera para obtener la ubicación ha expirado.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    message = "Ocurrió un error desconocido.";
+                    break;
+            }
+            alert(message);
+        }
+    </script>
+</body>
+</html>
